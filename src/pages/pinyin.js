@@ -6,27 +6,27 @@
 import { t } from '../i18n.js';
 import { playSound, speak } from '../audio.js';
 
-/** 声母（shēngmǔ）— 23個 */
+/** 声母（shēngmǔ）— 23個: [表示文字, 読み上げ用漢字] */
 const SHENGMU_ROWS = [
-  { color: '#FFB3B3', chars: ['b', 'p', 'm', 'f'] },
-  { color: '#FFD1A3', chars: ['d', 't', 'n', 'l'] },
-  { color: '#FFE8A3', chars: ['g', 'k', 'h', null] },
-  { color: '#D4F5A3', chars: ['j', 'q', 'x', null] },
-  { color: '#A3F5C8', chars: ['zh', 'ch', 'sh', 'r'] },
-  { color: '#A3E8F5', chars: ['z', 'c', 's', null] },
-  { color: '#C8A3F5', chars: ['y', 'w', null, null] },
+  { color: '#FFB3B3', chars: [['b', '波'], ['p', '坡'], ['m', '摸'], ['f', '佛']] },
+  { color: '#FFD1A3', chars: [['d', '得'], ['t', '特'], ['n', '讷'], ['l', '勒']] },
+  { color: '#FFE8A3', chars: [['g', '哥'], ['k', '科'], ['h', '喝'], null] },
+  { color: '#D4F5A3', chars: [['j', '基'], ['q', '期'], ['x', '希'], null] },
+  { color: '#A3F5C8', chars: [['zh', '知'], ['ch', '吃'], ['sh', '诗'], ['r', '日']] },
+  { color: '#A3E8F5', chars: [['z', '资'], ['c', '次'], ['s', '思'], null] },
+  { color: '#C8A3F5', chars: [['y', '衣'], ['w', '乌'], null, null] },
 ];
 
-/** 韻母（yùnmǔ）— 24個 */
+/** 韻母（yùnmǔ）— 24個: [表示文字, 読み上げ用漢字] */
 const YUNMU_ROWS = [
-  { color: '#FFB3B3', chars: ['a', 'o', 'e', null] },
-  { color: '#FFD1A3', chars: ['i', 'u', 'ü', null] },
-  { color: '#FFE8A3', chars: ['ai', 'ei', 'ui', null] },
-  { color: '#D4F5A3', chars: ['ao', 'ou', 'iu', null] },
-  { color: '#A3F5C8', chars: ['ie', 'üe', 'er', null] },
-  { color: '#A3E8F5', chars: ['an', 'en', 'in', null] },
-  { color: '#A3C8F5', chars: ['un', 'ün', null, null] },
-  { color: '#C8A3F5', chars: ['ang', 'eng', 'ing', 'ong'] },
+  { color: '#FFB3B3', chars: [['a', '啊'], ['o', '喔'], ['e', '鹅'], null] },
+  { color: '#FFD1A3', chars: [['i', '衣'], ['u', '乌'], ['ü', '鱼'], null] },
+  { color: '#FFE8A3', chars: [['ai', '哀'], ['ei', '欸'], ['ui', '威'], null] },
+  { color: '#D4F5A3', chars: [['ao', '凹'], ['ou', '欧'], ['iu', '优'], null] },
+  { color: '#A3F5C8', chars: [['ie', '耶'], ['üe', '约'], ['er', '耳'], null] },
+  { color: '#A3E8F5', chars: [['an', '安'], ['en', '恩'], ['in', '因'], null] },
+  { color: '#A3C8F5', chars: [['un', '温'], ['ün', '晕'], null, null] },
+  { color: '#C8A3F5', chars: [['ang', '昂'], ['eng', '鞥'], ['ing', '英'], ['ong', '翁']] },
 ];
 
 /** 四声の例（代表的な文字） */
@@ -40,30 +40,6 @@ const TONE_EXAMPLES = {
   'un': 'ūn ún ǔn ùn', 'ün': 'ǖn ǘn ǚn ǜn',
   'ang': 'āng áng ǎng àng', 'eng': 'ēng éng ěng èng',
   'ing': 'īng íng ǐng ìng', 'ong': 'ōng óng ǒng òng',
-};
-
-/**
- * 音声読み上げ用の中国語代表音節
- * Web Speech API は漢字テキストなら正しく中国語発音する
- */
-const SPEAK_TEXT = {
-  // 声母（標準教育用音節）
-  'b': '波', 'p': '坡', 'm': '摸', 'f': '佛',
-  'd': '得', 't': '特', 'n': '讷', 'l': '勒',
-  'g': '哥', 'k': '科', 'h': '喝',
-  'j': '基', 'q': '期', 'x': '希',
-  'zh': '知', 'ch': '吃', 'sh': '诗', 'r': '日',
-  'z': '资', 'c': '次', 's': '思',
-  'y': '衣', 'w': '乌',
-  // 韻母（代表漢字）
-  'a': '啊', 'o': '哦', 'e': '鹅',
-  'i': '衣', 'u': '乌', 'ü': '鱼',
-  'ai': '爱', 'ei': '诶', 'ui': '威',
-  'ao': '凹', 'ou': '偶', 'iu': '优',
-  'ie': '耶', 'üe': '约', 'er': '耳',
-  'an': '安', 'en': '恩', 'in': '因',
-  'un': '温', 'ün': '晕',
-  'ang': '昂', 'eng': '鞥', 'ing': '英', 'ong': '翁',
 };
 
 /** 現在のタブ */
@@ -104,11 +80,12 @@ function renderGrid(container, navigate) {
             <div class="hira-row" style="grid-template-columns: repeat(${cols}, 1fr); animation: slideUp 0.4s ease ${rowIdx * 0.05}s both;">
               ${row.chars.map(ch => {
     if (!ch) return '<div class="hira-cell hira-cell--empty"></div>';
-    const toneHint = TONE_EXAMPLES[ch] || '';
+    const [display, speakCh] = ch;
+    const toneHint = TONE_EXAMPLES[display] || '';
     return `
-                  <button class="hira-cell pinyin-cell" data-char="${ch}"
+                  <button class="hira-cell pinyin-cell" data-speak="${speakCh}"
                           style="background: ${row.color};">
-                    <span class="hira-cell__char" style="font-family: sans-serif; font-weight: 700;">${ch}</span>
+                    <span class="hira-cell__char" style="font-family: sans-serif; font-weight: 700;">${display}</span>
                     ${toneHint ? `<span class="pinyin-cell__tones">${toneHint}</span>` : ''}
                   </button>
                 `;
@@ -135,11 +112,10 @@ function renderGrid(container, navigate) {
     });
   });
 
-  // セルタップ — 中国語音声読み上げ
-  container.querySelectorAll('.pinyin-cell[data-char]').forEach(cell => {
+  // セルタップ — 中国語音声読み上げ（data-speak属性に漢字が入っている）
+  container.querySelectorAll('.pinyin-cell[data-speak]').forEach(cell => {
     cell.addEventListener('click', async () => {
-      const ch = cell.dataset.char;
-      const speakCh = SPEAK_TEXT[ch] || ch;
+      const speakCh = cell.dataset.speak;
       cell.classList.add('hira-cell--bounce');
       playSound('sparkle');
       await speak(speakCh, 'zh');

@@ -2,16 +2,23 @@
  * math-game.js — かんたんけいさんゲーム
  * 1桁の足し算/引き算を3択で回答する知育ゲーム
  * 5問1セット → スコア画面
+ * 中国語 / 日本語 切替対応
  */
 import { t, getLang } from '../i18n.js';
 import { playSound, speak } from '../audio.js';
 
 const TOTAL_QUESTIONS = 5;
 
+/** 音声言語（中国語優先デフォルト） */
+let voiceLang = 'zh';
+
 /**
  * 計算ゲーム画面をレンダリング
  */
 export function renderMathGame(container, navigate) {
+  // 初回: 言語設定に応じてデフォルトを決定
+  const appLang = getLang();
+  voiceLang = appLang === 'ja' ? 'ja' : 'zh'; // both→zh（中国語優先）
   startGame(container, navigate);
 }
 
@@ -92,7 +99,10 @@ function renderQuestion(container, navigate) {
       <div class="page-header">
         <button class="btn-back" id="btn-back-math">◀</button>
         <h1 class="page-title">${t('math')}</h1>
-        <div style="width:44px"></div>
+        <button class="btn-back math-lang-toggle" id="btn-lang-toggle"
+                style="font-size: 1.1rem; min-width: 44px;">
+          ${voiceLang === 'zh' ? '🇨🇳' : '🇯🇵'}
+        </button>
       </div>
 
       <div class="page-content">
@@ -125,6 +135,13 @@ function renderQuestion(container, navigate) {
     navigate('home');
   });
 
+  // 言語トグル
+  container.querySelector('#btn-lang-toggle').addEventListener('click', () => {
+    voiceLang = voiceLang === 'zh' ? 'ja' : 'zh';
+    playSound('pop');
+    renderQuestion(container, navigate);
+  });
+
   // 選択肢クリック
   container.querySelectorAll('.math-choice').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -136,14 +153,13 @@ function renderQuestion(container, navigate) {
   });
 
   // 問題を読み上げ
-  const lang = getLang();
-  const readText = `${q.a} ${q.operator === '+' ? 'たす' : 'ひく'} ${q.b} は？`;
   setTimeout(() => {
-    if (lang === 'zh') {
+    if (voiceLang === 'zh') {
       const zhText = `${q.a} ${q.operator === '+' ? '加' : '减'} ${q.b} 等于几？`;
       speak(zhText, 'zh');
     } else {
-      speak(readText, 'ja');
+      const jaText = `${q.a} ${q.operator === '+' ? 'たす' : 'ひく'} ${q.b} は？`;
+      speak(jaText, 'ja');
     }
   }, 600);
 }
@@ -227,8 +243,6 @@ function renderResult(container, navigate) {
     0: { ja: 'つぎもがんばろう！ 🌟', zh: '下次加油！🌟' },
   };
 
-  const lang = getLang();
-  const msgLang = (lang === 'zh') ? 'zh' : 'ja';
   const msg = messages[score] || messages[0];
 
   container.innerHTML = `
@@ -243,7 +257,7 @@ function renderResult(container, navigate) {
         <div class="math-result" style="animation: popIn 0.6s ease both;">
           <div class="math-result__stars">${stars}</div>
           <div class="math-result__score">${score} / ${TOTAL_QUESTIONS}</div>
-          <div class="math-result__message">${msg[msgLang]}</div>
+          <div class="math-result__message">${msg[voiceLang]}</div>
         </div>
 
         <div class="math-result__actions" style="animation: slideUp 0.5s ease 0.3s both;">
@@ -260,7 +274,7 @@ function renderResult(container, navigate) {
 
   // 結果読み上げ
   setTimeout(() => {
-    speak(msg[msgLang], msgLang === 'zh' ? 'zh' : 'ja');
+    speak(msg[voiceLang], voiceLang);
   }, 800);
 
   // もう一回
