@@ -32,6 +32,47 @@ export function setSpeechEnabled(enabled) {
 }
 
 /**
+ * 利用可能な音声リストをキャッシュ
+ */
+let cachedVoices = [];
+function loadVoices() {
+    cachedVoices = window.speechSynthesis?.getVoices() || [];
+}
+if (window.speechSynthesis) {
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+}
+
+/**
+ * 指定言語に最適な音声を選択
+ * iOS/Safariでは音声名にプラットフォーム固有の名前がつくため、
+ * 言語コードで検索して最適なものを返す
+ */
+function findBestVoice(langCode) {
+    if (cachedVoices.length === 0) loadVoices();
+
+    // 完全一致を優先
+    let voice = cachedVoices.find(v => v.lang === langCode);
+    if (voice) return voice;
+
+    // プレフィックス一致 (例: 'zh-CN' → 'zh' で検索)
+    const prefix = langCode.split('-')[0];
+    voice = cachedVoices.find(v => v.lang.startsWith(prefix));
+    if (voice) return voice;
+
+    // 中国語のフォールバック: zh-CN → zh-TW → zh-HK
+    if (prefix === 'zh') {
+        voice = cachedVoices.find(v =>
+            v.lang === 'zh-TW' || v.lang === 'zh-HK' ||
+            v.lang.startsWith('zh')
+        );
+        if (voice) return voice;
+    }
+
+    return null;
+}
+
+/**
  * テキストを音声で読み上げ
  * @param {string} text - 読み上げるテキスト
  * @param {'ja' | 'zh'} lang - 言語
@@ -44,19 +85,41 @@ export function speak(text, lang = 'ja') {
         // 既存の読み上げを停止
         window.speechSynthesis.cancel();
 
+        const langCode = lang === 'zh' ? 'zh-CN' : 'ja-JP';
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = lang === 'zh' ? 'zh-CN' : 'ja-JP';
+        utterance.lang = langCode;
         utterance.rate = 0.8; // ゆっくり話す（子供向け）
         utterance.pitch = 1.1; // やや高めの声
         utterance.volume = 0.8;
 
-        utterance.onend = resolve;
-        utterance.onerror = resolve;
+        // 最適な音声を明示的に設定（iOS/Safari対応）
+        const voice = findBestVoice(langCode);
+        if (voice) {
+            utterance.voice = voice;
+            utterance.lang = voice.lang; // 音声の実際の言語コードに合わせる
+        }
 
-        // 少し遅延して発話（Chrome バグ対策）
+        utterance.onend = resolve;
+        utterance.onerror = () => resolve(); // エラー時もPromise解決
+
+        // iOS Safariではcancel後に長めの遅延が必要
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        const delay = isIOS ? 200 : 50;
+
         setTimeout(() => {
             window.speechSynthesis.speak(utterance);
-        }, 50);
+            // iOS Safari: 長い発話が途中で止まるバグ対策
+            if (isIOS) {
+                const keepAlive = setInterval(() => {
+                    if (!window.speechSynthesis.speaking) {
+                        clearInterval(keepAlive);
+                    } else {
+                        window.speechSynthesis.pause();
+                        window.speechSynthesis.resume();
+                    }
+                }, 5000);
+            }
+        }, delay);
     });
 }
 
