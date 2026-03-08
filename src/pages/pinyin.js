@@ -19,14 +19,14 @@ const SHENGMU_ROWS = [
 
 /** 韻母（yùnmǔ）— 24個: [表示文字, 読み上げ用漢字] */
 const YUNMU_ROWS = [
-  { color: '#FFB3B3', chars: [['a', '啊'], ['o', '喔'], ['e', '鹅'], null] },
+  { color: '#FFB3B3', chars: [['a', '啊'], ['o', '哦'], ['e', '鹅'], null] },
   { color: '#FFD1A3', chars: [['i', '衣'], ['u', '乌'], ['ü', '鱼'], null] },
-  { color: '#FFE8A3', chars: [['ai', '哀'], ['ei', '欸'], ['ui', '威'], null] },
-  { color: '#D4F5A3', chars: [['ao', '凹'], ['ou', '欧'], ['iu', '优'], null] },
-  { color: '#A3F5C8', chars: [['ie', '耶'], ['üe', '约'], ['er', '耳'], null] },
+  { color: '#FFE8A3', chars: [['ai', '爱'], ['ei', '杯'], ['ui', '回'], null] },
+  { color: '#D4F5A3', chars: [['ao', '猫'], ['ou', '狗'], ['iu', '牛'], null] },
+  { color: '#A3F5C8', chars: [['ie', '耶'], ['üe', '月'], ['er', '耳'], null] },
   { color: '#A3E8F5', chars: [['an', '安'], ['en', '恩'], ['in', '因'], null] },
   { color: '#A3C8F5', chars: [['un', '温'], ['ün', '晕'], null, null] },
-  { color: '#C8A3F5', chars: [['ang', '昂'], ['eng', '鞥'], ['ing', '英'], ['ong', '翁']] },
+  { color: '#C8A3F5', chars: [['ang', '昂'], ['eng', '风'], ['ing', '英'], ['ong', '翁']] },
 ];
 
 /** 四声の例（代表的な文字） */
