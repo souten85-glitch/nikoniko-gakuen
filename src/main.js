@@ -9,6 +9,9 @@ import { renderTouchPlay } from './pages/touch-play.js';
 import { renderVideos } from './pages/videos.js';
 import { renderMusic } from './pages/music.js';
 import { renderSettings } from './pages/settings.js';
+import { renderHiragana } from './pages/hiragana.js';
+import { renderMathGame } from './pages/math-game.js';
+import { renderPinyin } from './pages/pinyin.js';
 import { initAudio } from './audio.js';
 
 const app = document.getElementById('app');
@@ -24,6 +27,9 @@ const pages = {
     videos: renderVideos,
     music: renderMusic,
     settings: renderSettings,
+    hiragana: renderHiragana,
+    'math-game': renderMathGame,
+    pinyin: renderPinyin,
 };
 
 /**

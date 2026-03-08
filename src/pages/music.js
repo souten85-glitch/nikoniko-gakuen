@@ -43,8 +43,8 @@ export function renderMusic(container, navigate) {
     displayLists = [{ label: '🇨🇳 中文儿歌', songs: musicData.zh }];
   } else {
     displayLists = [
-      { label: '🇯🇵 にほんのうた', songs: musicData.ja },
       { label: '🇨🇳 中文儿歌', songs: musicData.zh },
+      { label: '🇯🇵 にほんのうた', songs: musicData.ja },
     ];
   }
 

@@ -60,6 +60,18 @@ const messages = {
         drawClear: 'ぜんぶけす',
         drawThick: 'ふとい',
         drawThin: 'ほそい',
+        // ひらがな
+        hiragana: 'ひらがな',
+        seion: 'せいおん',
+        dakuon: 'だくおん',
+        // けいさん
+        math: 'けいさん',
+        mathResult: 'けっか',
+        mathRetry: 'もういっかい',
+        // ピンイン
+        pinyin: 'ピンイン',
+        shengmu: 'しせいぼ',
+        yunmu: 'いんぼ',
     },
     zh: {
         appName: '笑笑学园',
@@ -108,6 +120,18 @@ const messages = {
         drawClear: '全部清除',
         drawThick: '粗',
         drawThin: '细',
+        // ひらがな
+        hiragana: '平假名',
+        seion: '清音',
+        dakuon: '浊音',
+        // けいさん
+        math: '算术',
+        mathResult: '结果',
+        mathRetry: '再来一次',
+        // ピンイン
+        pinyin: '拼音',
+        shengmu: '声母',
+        yunmu: '韵母',
     },
 };
 
@@ -149,8 +173,8 @@ export function setAge(age) {
  * @returns {string}
  */
 export function t(key) {
-    const lang = currentLang === 'both' ? 'ja' : currentLang;
-    return messages[lang]?.[key] || messages.ja[key] || key;
+    const lang = currentLang === 'both' ? 'zh' : currentLang;
+    return messages[lang]?.[key] || messages.zh[key] || key;
 }
 
 /**
@@ -160,4 +184,16 @@ export function t(key) {
  */
 export function tLang(lang, key) {
     return messages[lang]?.[key] || key;
+}
+
+/**
+ * 中国語+日本語の両方のテキストを返す（中国語優先バイリンガル表示用）
+ * @param {string} key
+ * @returns {{ zh: string, ja: string }}
+ */
+export function tBoth(key) {
+    return {
+        zh: messages.zh?.[key] || key,
+        ja: messages.ja?.[key] || key,
+    };
 }

@@ -3,7 +3,7 @@
  * 大きなカードアイコンでメニューを表示
  * 年齢セレクター付き
  */
-import { t, getAge, setAge } from '../i18n.js';
+import { t, tBoth, getAge, setAge } from '../i18n.js';
 import { playSound, initAudio } from '../audio.js';
 
 /**
@@ -12,14 +12,24 @@ import { playSound, initAudio } from '../audio.js';
  * @param {(page: string) => void} navigate
  */
 export function renderHome(container, navigate) {
-  const menuItems = [
+  const allMenuItems = [
     { id: 'flashcards', icon: '🃏', labelKey: 'flashcards', bg: 'var(--color-yellow-soft)' },
     { id: 'touch-play', icon: '👆', labelKey: 'touchPlay', bg: 'var(--color-pink-soft)' },
     { id: 'videos', icon: '🎬', labelKey: 'videos', bg: 'var(--color-blue-soft)' },
     { id: 'music', icon: '🎵', labelKey: 'music', bg: 'var(--color-green-soft)' },
+    { id: 'hiragana', icon: 'あ', labelKey: 'hiragana', bg: 'var(--color-purple-soft)', ageGroup: '5-6' },
+    { id: 'pinyin', icon: '拼', labelKey: 'pinyin', bg: 'var(--color-blue-soft)', ageGroup: '5-6' },
+    { id: 'math-game', icon: '🧮', labelKey: 'math', bg: 'var(--color-orange-soft)', ageGroup: '5-6' },
   ];
 
+  // 年齢フィルタリング
   const currentAge = getAge();
+  const ageOrder = { '1-2': 1, '3-4': 2, '5-6': 3 };
+  const currentLevel = ageOrder[currentAge] || 1;
+  const menuItems = allMenuItems.filter(item => {
+    if (!item.ageGroup) return true;
+    return ageOrder[item.ageGroup] <= currentLevel;
+  });
 
   container.innerHTML = `
     <div class="page" id="home-page">
@@ -31,7 +41,8 @@ export function renderHome(container, navigate) {
       <div class="page-header">
         <div style="width:44px"></div>
         <h1 class="page-title" style="font-size: var(--font-size-xl);">
-          ${t('appName')}
+          <span class="title-zh">笑笑学园</span>
+          <span class="title-ja">にこにこ学園</span>
         </h1>
         <button class="btn-back" id="btn-settings" aria-label="${t('settings')}" style="font-size: 1.2rem;">
           ⚙️
@@ -51,7 +62,7 @@ export function renderHome(container, navigate) {
         </button>
       </div>
 
-      <div class="page-content">
+      <div class="page-content page-content--scrollable">
         <div class="home-grid">
           ${menuItems
       .map(
@@ -59,7 +70,8 @@ export function renderHome(container, navigate) {
             <button class="home-card" data-page="${item.id}" 
                     style="background: ${item.bg}; animation-delay: ${i * 0.1}s; animation: popIn 0.5s ease ${i * 0.1}s both;">
               <span class="home-card__icon">${item.icon}</span>
-              <span class="home-card__label">${t(item.labelKey)}</span>
+              <span class="home-card__label">${tBoth(item.labelKey).zh}</span>
+              <span class="home-card__label-sub">${tBoth(item.labelKey).ja}</span>
             </button>
           `
       )
@@ -83,9 +95,7 @@ export function renderHome(container, navigate) {
     btn.addEventListener('click', () => {
       playSound('pop');
       setAge(btn.dataset.age);
-      // 全ボタンのactive解除
-      container.querySelectorAll('.age-selector__btn').forEach((b) => b.classList.remove('active'));
-      btn.classList.add('active');
+      renderHome(container, navigate);
     });
   });
 

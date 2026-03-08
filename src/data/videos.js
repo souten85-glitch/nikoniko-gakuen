@@ -7,42 +7,6 @@
 
 export const videoCategories = [
     {
-        id: 'ja',
-        label: '🇯🇵 にほんご',
-        videos: [
-            {
-                id: 'FkFnrQzIIhM',
-                title: 'どうぶつのなまえ',
-                subtitle: '動物の名前を覚えよう',
-                icon: '🐾',
-            },
-            {
-                id: 'HyQ0FTsV92U',
-                title: 'いろのうた',
-                subtitle: 'いろいろカラーへんしん',
-                icon: '🎨',
-            },
-            {
-                id: 'oAKlvhK1e8w',
-                title: 'すうじのうた',
-                subtitle: '1-10までかぞえよう',
-                icon: '🔢',
-            },
-            {
-                id: 'UMEI2C2wnGY',
-                title: 'くだものパズル',
-                subtitle: '果物の名前もおぼえられる',
-                icon: '🍎',
-            },
-            {
-                id: 'P-lSxvIINbo',
-                title: 'のりもののなまえ',
-                subtitle: 'はたらくくるま大集合',
-                icon: '🚗',
-            },
-        ],
-    },
-    {
         id: 'zh',
         label: '🇨🇳 中文',
         videos: [
@@ -74,6 +38,42 @@ export const videoCategories = [
                 id: 'bwS1GkwyKQg',
                 title: '交通工具',
                 subtitle: '认识各种车',
+                icon: '🚗',
+            },
+        ],
+    },
+    {
+        id: 'ja',
+        label: '🇯🇵 にほんご',
+        videos: [
+            {
+                id: 'FkFnrQzIIhM',
+                title: 'どうぶつのなまえ',
+                subtitle: '動物の名前を覚えよう',
+                icon: '🐾',
+            },
+            {
+                id: 'HyQ0FTsV92U',
+                title: 'いろのうた',
+                subtitle: 'いろいろカラーへんしん',
+                icon: '🎨',
+            },
+            {
+                id: 'oAKlvhK1e8w',
+                title: 'すうじのうた',
+                subtitle: '1-10までかぞえよう',
+                icon: '🔢',
+            },
+            {
+                id: 'UMEI2C2wnGY',
+                title: 'くだものパズル',
+                subtitle: '果物の名前もおぼえられる',
+                icon: '🍎',
+            },
+            {
+                id: 'P-lSxvIINbo',
+                title: 'のりもののなまえ',
+                subtitle: 'はたらくくるま大集合',
                 icon: '🚗',
             },
         ],

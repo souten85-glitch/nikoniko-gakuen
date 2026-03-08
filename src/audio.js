@@ -124,14 +124,14 @@ export function speak(text, lang = 'ja') {
 }
 
 /**
- * 両言語で読み上げ（日本語 → 中国語）
+ * 両言語で読み上げ（中国語 → 日本語）
  * @param {string} jaText
  * @param {string} zhText
  */
 export async function speakBoth(jaText, zhText) {
-    await speak(jaText, 'ja');
-    await new Promise((r) => setTimeout(r, 400));
     await speak(zhText, 'zh');
+    await new Promise((r) => setTimeout(r, 400));
+    await speak(jaText, 'ja');
 }
 
 /**

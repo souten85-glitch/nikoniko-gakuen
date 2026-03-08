@@ -3,7 +3,7 @@
  * カテゴリ選択 → カード表示 → タップで読み上げ＆次のカードへ
  * 年齢グループに応じてカテゴリをフィルタリング
  */
-import { t, getLang, getAge } from '../i18n.js';
+import { t, tBoth, getLang, getAge } from '../i18n.js';
 import { playSound, speak, speakBoth } from '../audio.js';
 import { categories, flashcardData } from '../data/flashcard-data.js';
 
@@ -48,7 +48,8 @@ function renderCategorySelect(container, navigate) {
             <button class="category-card" data-cat="${cat.id}"
                     style="background: var(${cat.colorSoftVar}); animation: popIn 0.4s ease ${i * 0.08}s both;">
               <span class="category-card__icon">${cat.icon}</span>
-              <span class="category-card__label">${t(cat.id)}</span>
+              <span class="category-card__label">${tBoth(cat.id).zh}</span>
+              <span class="category-card__label-sub">${tBoth(cat.id).ja}</span>
             </button>
           `
       )
@@ -93,18 +94,18 @@ function renderCardView(container, navigate, categoryId) {
           <div class="flashcard" id="flashcard-main">
             <img class="flashcard__image" 
                  src="${card.image}" 
-                 alt="${card.ja}"
+                 alt="${card.zh}"
                  onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
             <span class="flashcard__emoji" style="display:none;">${card.emoji}</span>
-            ${lang === 'ja' || lang === 'both'
-        ? `<span class="flashcard__text-ja">${card.ja}</span>`
-        : ''
-      }
             ${lang === 'zh' || lang === 'both'
         ? `
               <span class="flashcard__text-zh">${card.zh}</span>
               <span class="flashcard__pinyin">${card.pinyin}</span>
             `
+        : ''
+      }
+            ${lang === 'ja' || lang === 'both'
+        ? `<span class="flashcard__text-ja">${card.ja}</span>`
         : ''
       }
           </div>

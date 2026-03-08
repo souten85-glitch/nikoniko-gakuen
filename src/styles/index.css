@@ -297,6 +297,67 @@ button {
   line-height: 1.2;
 }
 
+.home-card__label-sub {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-light);
+  font-weight: 400;
+  text-align: center;
+  line-height: 1;
+}
+
+/* --- Bilingual Title (中日2段タイトル) --- */
+.title-zh {
+  display: block;
+  font-size: var(--font-size-xl);
+  line-height: 1.2;
+}
+
+.title-ja {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-light);
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+/* --- Category Label Sub (カテゴリ日本語サブラベル) --- */
+.category-card__label-sub {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-light);
+  font-weight: 400;
+  text-align: center;
+  line-height: 1;
+}
+
+/* --- Flashcard Text Sizing (中国語優先) --- */
+.flashcard__text-zh {
+  font-size: var(--font-size-xl);
+  color: var(--color-text);
+  text-align: center;
+}
+
+.flashcard__text-ja {
+  font-size: var(--font-size-md);
+  color: var(--color-text-light);
+  text-align: center;
+}
+
+/* --- Pinyin Cell (四声表示) --- */
+.pinyin-cell {
+  aspect-ratio: auto;
+  padding: var(--space-sm) var(--space-xs);
+  min-height: 56px;
+}
+
+.pinyin-cell__tones {
+  font-size: 0.55rem;
+  color: var(--color-text-light);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
 /* --- Category Grid (フラッシュカード等) --- */
 .category-grid {
   display: grid;
@@ -387,14 +448,14 @@ button {
 }
 
 .flashcard__text-ja {
-  font-size: var(--font-size-xl);
-  color: var(--color-text);
+  font-size: var(--font-size-md);
+  color: var(--color-text-light);
   text-align: center;
 }
 
 .flashcard__text-zh {
-  font-size: var(--font-size-lg);
-  color: var(--color-text-light);
+  font-size: var(--font-size-xl);
+  color: var(--color-text);
   text-align: center;
 }
 
@@ -1051,5 +1112,260 @@ button {
 
   50% {
     box-shadow: 0 0 30px rgba(245, 217, 142, 0.8);
+  }
+}
+
+/* ============================================
+   ひらがな50音表
+   ============================================ */
+
+.hira-tabs {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-xs);
+  padding: 0 var(--space-md) var(--space-sm);
+  flex-shrink: 0;
+}
+
+.hira-tab {
+  padding: var(--space-xs) var(--space-lg);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-light);
+  background: var(--color-bg-soft);
+  transition: all var(--transition-fast);
+  min-height: 38px;
+}
+
+.hira-tab.active {
+  background: var(--color-purple);
+  color: white;
+  box-shadow: var(--shadow-soft);
+}
+
+.hira-tab:active {
+  transform: scale(0.95);
+}
+
+.hira-grid-wrap {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-sm);
+}
+
+.hira-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-xs);
+}
+
+.hira-cell {
+  aspect-ratio: 1;
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  box-shadow: var(--shadow-soft);
+  transition: transform var(--transition-bounce);
+  cursor: pointer;
+  min-height: 48px;
+}
+
+.hira-cell--empty {
+  background: transparent;
+  box-shadow: none;
+  cursor: default;
+}
+
+.hira-cell:active:not(.hira-cell--empty) {
+  transform: scale(0.88);
+}
+
+.hira-cell--bounce {
+  animation: cardBounce 0.5s ease;
+}
+
+.hira-cell__char {
+  font-size: var(--font-size-lg);
+  font-weight: 900;
+  color: var(--color-text);
+  line-height: 1;
+}
+
+.hira-cell__romaji {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-light);
+  font-weight: 400;
+  line-height: 1;
+}
+
+/* ============================================
+   かんたん けいさんゲーム
+   ============================================ */
+
+.math-progress {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.math-progress__star {
+  font-size: 1.5rem;
+  transition: transform var(--transition-bounce);
+}
+
+.math-progress__star--done {
+  animation: popIn 0.3s ease both;
+}
+
+.math-progress__star--current {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.math-question {
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-float);
+  padding: var(--space-xl) var(--space-2xl);
+  margin-bottom: var(--space-xl);
+  text-align: center;
+}
+
+.math-question__text {
+  font-size: clamp(2rem, 8vw, 4rem);
+  font-weight: 900;
+  color: var(--color-text);
+  letter-spacing: 0.05em;
+}
+
+.math-choices {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.math-choice {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  font-size: var(--font-size-xl);
+  font-weight: 900;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-bounce);
+}
+
+.math-choice:active {
+  transform: scale(0.9);
+}
+
+.math-choice--correct {
+  background: var(--color-green);
+  color: white;
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(72, 187, 120, 0.5);
+}
+
+.math-choice--wrong {
+  background: #F5A3A3;
+  color: white;
+  animation: shake 0.4s ease;
+}
+
+/* 結果画面 */
+.math-result {
+  text-align: center;
+  padding: var(--space-xl);
+}
+
+.math-result__stars {
+  font-size: clamp(2rem, 8vw, 3.5rem);
+  margin-bottom: var(--space-md);
+  letter-spacing: 0.1em;
+}
+
+.math-result__score {
+  font-size: var(--font-size-xl);
+  font-weight: 900;
+  color: var(--color-text);
+  margin-bottom: var(--space-sm);
+}
+
+.math-result__message {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-light);
+}
+
+.math-result__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  align-items: center;
+  margin-top: var(--space-xl);
+}
+
+.math-result__btn {
+  padding: var(--space-md) var(--space-2xl);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  min-height: 56px;
+  min-width: 200px;
+  transition: all var(--transition-bounce);
+  box-shadow: var(--shadow-card);
+}
+
+.math-result__btn:active {
+  transform: scale(0.93);
+}
+
+.math-result__btn--retry {
+  background: var(--color-yellow);
+  color: var(--color-text);
+}
+
+.math-result__btn--home {
+  background: var(--color-bg-soft);
+  color: var(--color-text-light);
+}
+
+/* 紙吹雪 */
+.math-confetti {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.math-confetti__piece {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  top: -10px;
+  animation: confettiFall 1s ease-out forwards;
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
   }
 }
