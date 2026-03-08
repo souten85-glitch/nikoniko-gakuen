@@ -76,6 +76,10 @@ const messages = {
         katakana: 'カタカナ',
         // 記憶ゲーム
         memory: 'きおくゲーム',
+        // かぞえるゲーム
+        counting: 'かぞえる',
+        // 漢字入門
+        kanjiIntro: 'かんじ',
     },
     zh: {
         appName: '笑笑学园',
@@ -140,6 +144,10 @@ const messages = {
         katakana: '片假名',
         // 記憶ゲーム
         memory: '记忆游戏',
+        // かぞえるゲーム
+        counting: '数一数',
+        // 漢字入門
+        kanjiIntro: '汉字入门',
     },
 };
 

@@ -14,6 +14,8 @@ import { renderMathGame } from './pages/math-game.js';
 import { renderPinyin } from './pages/pinyin.js';
 import { renderKatakana } from './pages/katakana.js';
 import { renderMemoryGame } from './pages/memory-game.js';
+import { renderCountingGame } from './pages/counting-game.js';
+import { renderKanjiIntro } from './pages/kanji-intro.js';
 import { initAudio } from './audio.js';
 
 const app = document.getElementById('app');
@@ -34,6 +36,8 @@ const pages = {
     pinyin: renderPinyin,
     katakana: renderKatakana,
     'memory-game': renderMemoryGame,
+    'counting-game': renderCountingGame,
+    'kanji-intro': renderKanjiIntro,
 };
 
 /**

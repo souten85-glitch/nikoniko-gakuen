@@ -1476,3 +1476,155 @@ button {
   font-weight: 700;
   color: var(--color-text-light);
 }
+
+/* ==================================== */
+/* Counting Game (かぞえるゲーム)        */
+/* ==================================== */
+.count-question-text {
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  color: var(--color-text);
+  text-align: center;
+  margin-bottom: var(--space-sm);
+}
+
+.count-area {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  min-height: 120px;
+  max-width: 320px;
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-soft);
+  margin-bottom: var(--space-md);
+}
+
+.count-item {
+  display: inline-block;
+  line-height: 1;
+}
+
+/* ================================== */
+/* Kanji Intro (漢字入門)              */
+/* ================================== */
+.kanji-cat-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-md);
+  max-width: 300px;
+  width: 100%;
+  padding: var(--space-md);
+}
+
+.kanji-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 160px;
+  height: 160px;
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-bold);
+  margin-bottom: var(--space-md);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.kanji-display:hover {
+  transform: scale(1.05);
+}
+
+.kanji-display__char {
+  font-size: clamp(4rem, 20vw, 7rem);
+  font-weight: 900;
+  color: var(--color-text);
+  line-height: 1;
+}
+
+.kanji-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  width: 100%;
+  max-width: 280px;
+  padding: var(--space-md);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+}
+
+.kanji-info__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-xs) 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.kanji-info__row:last-child {
+  border-bottom: none;
+}
+
+.kanji-info__label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-light);
+  font-weight: 600;
+}
+
+.kanji-info__value {
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.kanji-actions {
+  display: flex;
+  gap: var(--space-md);
+  margin-top: var(--space-sm);
+}
+
+.kanji-speak-btn {
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: var(--shadow-soft);
+}
+
+.kanji-speak-btn:active {
+  transform: scale(0.95);
+}
+
+.kanji-nav {
+  display: flex;
+  gap: var(--space-lg);
+  margin-top: var(--space-md);
+}
+
+.kanji-nav__btn {
+  border: none;
+  background: var(--color-primary);
+  color: white;
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-lg);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.kanji-nav__btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.kanji-nav__btn:not(:disabled):active {
+  transform: scale(0.95);
+}
