@@ -6,6 +6,7 @@
  */
 import { t, getLang } from '../i18n.js';
 import { playSound, speak } from '../audio.js';
+import { recordGame } from '../progress.js';
 
 const TOTAL_QUESTIONS = 5;
 
@@ -194,6 +195,7 @@ function handleAnswer(container, navigate, value, btnEl) {
   setTimeout(() => {
     currentQ++;
     if (currentQ >= TOTAL_QUESTIONS) {
+      recordGame('math-game', score, TOTAL_QUESTIONS);
       renderResult(container, navigate);
     } else {
       renderQuestion(container, navigate);

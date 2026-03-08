@@ -5,66 +5,67 @@
  */
 import { t, tBoth, getLang } from '../i18n.js';
 import { playSound, speak, speakBoth } from '../audio.js';
+import { recordKanjiView } from '../progress.js';
 
 /** 漢字データ: [漢字, ピンイン, 中国語意味, 日本語読み, 画数] */
 const KANJI_CATEGORIES = [
-    {
-        id: 'numbers',
-        labelZh: '数字',
-        labelJa: 'すうじ',
-        icon: '🔢',
-        color: '#FFD1A3',
-        chars: [
-            ['一', 'yī', '1', 'いち', 1],
-            ['二', 'èr', '2', 'に', 2],
-            ['三', 'sān', '3', 'さん', 3],
-            ['四', 'sì', '4', 'し/よん', 5],
-            ['五', 'wǔ', '5', 'ご', 4],
-            ['六', 'liù', '6', 'ろく', 4],
-            ['七', 'qī', '7', 'しち/なな', 2],
-            ['八', 'bā', '8', 'はち', 2],
-            ['九', 'jiǔ', '9', 'きゅう', 2],
-            ['十', 'shí', '10', 'じゅう', 2],
-        ],
-    },
-    {
-        id: 'nature',
-        labelZh: '自然',
-        labelJa: 'しぜん',
-        icon: '🌿',
-        color: '#A3F5C8',
-        chars: [
-            ['日', 'rì', '太阳', 'ひ/にち', 4],
-            ['月', 'yuè', '月亮', 'つき/げつ', 4],
-            ['水', 'shuǐ', '水', 'みず/すい', 4],
-            ['火', 'huǒ', '火', 'ひ/か', 4],
-            ['山', 'shān', '山', 'やま/さん', 3],
-            ['木', 'mù', '树', 'き/もく', 4],
-            ['花', 'huā', '花', 'はな/か', 7],
-            ['雨', 'yǔ', '雨', 'あめ/う', 8],
-            ['风', 'fēng', '风', 'かぜ/ふう', 4],
-            ['天', 'tiān', '天空', 'てん/あま', 4],
-        ],
-    },
-    {
-        id: 'animals',
-        labelZh: '动物',
-        labelJa: 'どうぶつ',
-        icon: '🐾',
-        color: '#A3E8F5',
-        chars: [
-            ['马', 'mǎ', '马', 'うま/ば', 3],
-            ['牛', 'niú', '牛', 'うし/ぎゅう', 4],
-            ['羊', 'yáng', '羊', 'ひつじ/よう', 6],
-            ['鱼', 'yú', '鱼', 'さかな/ぎょ', 8],
-            ['鸟', 'niǎo', '鸟', 'とり/ちょう', 5],
-            ['虫', 'chóng', '虫', 'むし/ちゅう', 6],
-            ['犬', 'quǎn', '狗', 'いぬ/けん', 4],
-            ['猫', 'māo', '猫', 'ねこ', 11],
-            ['龙', 'lóng', '龙', 'りゅう', 5],
-            ['兔', 'tù', '兔子', 'うさぎ/と', 8],
-        ],
-    },
+  {
+    id: 'numbers',
+    labelZh: '数字',
+    labelJa: 'すうじ',
+    icon: '🔢',
+    color: '#FFD1A3',
+    chars: [
+      ['一', 'yī', '1', 'いち', 1],
+      ['二', 'èr', '2', 'に', 2],
+      ['三', 'sān', '3', 'さん', 3],
+      ['四', 'sì', '4', 'し/よん', 5],
+      ['五', 'wǔ', '5', 'ご', 4],
+      ['六', 'liù', '6', 'ろく', 4],
+      ['七', 'qī', '7', 'しち/なな', 2],
+      ['八', 'bā', '8', 'はち', 2],
+      ['九', 'jiǔ', '9', 'きゅう', 2],
+      ['十', 'shí', '10', 'じゅう', 2],
+    ],
+  },
+  {
+    id: 'nature',
+    labelZh: '自然',
+    labelJa: 'しぜん',
+    icon: '🌿',
+    color: '#A3F5C8',
+    chars: [
+      ['日', 'rì', '太阳', 'ひ/にち', 4],
+      ['月', 'yuè', '月亮', 'つき/げつ', 4],
+      ['水', 'shuǐ', '水', 'みず/すい', 4],
+      ['火', 'huǒ', '火', 'ひ/か', 4],
+      ['山', 'shān', '山', 'やま/さん', 3],
+      ['木', 'mù', '树', 'き/もく', 4],
+      ['花', 'huā', '花', 'はな/か', 7],
+      ['雨', 'yǔ', '雨', 'あめ/う', 8],
+      ['风', 'fēng', '风', 'かぜ/ふう', 4],
+      ['天', 'tiān', '天空', 'てん/あま', 4],
+    ],
+  },
+  {
+    id: 'animals',
+    labelZh: '动物',
+    labelJa: 'どうぶつ',
+    icon: '🐾',
+    color: '#A3E8F5',
+    chars: [
+      ['马', 'mǎ', '马', 'うま/ば', 3],
+      ['牛', 'niú', '牛', 'うし/ぎゅう', 4],
+      ['羊', 'yáng', '羊', 'ひつじ/よう', 6],
+      ['鱼', 'yú', '鱼', 'さかな/ぎょ', 8],
+      ['鸟', 'niǎo', '鸟', 'とり/ちょう', 5],
+      ['虫', 'chóng', '虫', 'むし/ちゅう', 6],
+      ['犬', 'quǎn', '狗', 'いぬ/けん', 4],
+      ['猫', 'māo', '猫', 'ねこ', 11],
+      ['龙', 'lóng', '龙', 'りゅう', 5],
+      ['兔', 'tù', '兔子', 'うさぎ/と', 8],
+    ],
+  },
 ];
 
 let currentCatIdx = -1; // -1 = カテゴリ選択画面
@@ -74,15 +75,15 @@ let currentCharIdx = 0;
  * 漢字入門ページをレンダリング
  */
 export function renderKanjiIntro(container, navigate) {
-    currentCatIdx = -1;
-    renderCategorySelect(container, navigate);
+  currentCatIdx = -1;
+  renderCategorySelect(container, navigate);
 }
 
 /**
  * カテゴリ選択画面
  */
 function renderCategorySelect(container, navigate) {
-    container.innerHTML = `
+  container.innerHTML = `
     <div class="page" id="kanji-page">
       <div class="page-header">
         <button class="btn-back" id="btn-back-kanji">◀</button>
@@ -104,32 +105,33 @@ function renderCategorySelect(container, navigate) {
     </div>
   `;
 
-    container.querySelector('#btn-back-kanji').addEventListener('click', () => {
-        playSound('pop');
-        navigate('home');
-    });
+  container.querySelector('#btn-back-kanji').addEventListener('click', () => {
+    playSound('pop');
+    navigate('home');
+  });
 
-    container.querySelectorAll('.kanji-cat-card').forEach(btn => {
-        btn.addEventListener('click', () => {
-            currentCatIdx = parseInt(btn.dataset.cat);
-            currentCharIdx = 0;
-            playSound('chime');
-            renderCharDetail(container, navigate);
-        });
+  container.querySelectorAll('.kanji-cat-card').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentCatIdx = parseInt(btn.dataset.cat);
+      currentCharIdx = 0;
+      playSound('chime');
+      renderCharDetail(container, navigate);
     });
+  });
 }
 
 /**
  * 漢字詳細画面（1文字ずつ表示）
  */
 function renderCharDetail(container, navigate) {
-    const cat = KANJI_CATEGORIES[currentCatIdx];
-    const [kanji, pinyin, zhMeaning, jaReading, strokes] = cat.chars[currentCharIdx];
-    const total = cat.chars.length;
-    const isFirst = currentCharIdx === 0;
-    const isLast = currentCharIdx === total - 1;
+  const cat = KANJI_CATEGORIES[currentCatIdx];
+  const [kanji, pinyin, zhMeaning, jaReading, strokes] = cat.chars[currentCharIdx];
+  const total = cat.chars.length;
+  recordKanjiView();
+  const isFirst = currentCharIdx === 0;
+  const isLast = currentCharIdx === total - 1;
 
-    container.innerHTML = `
+  container.innerHTML = `
     <div class="page" id="kanji-detail-page">
       <div class="page-header">
         <button class="btn-back" id="btn-back-kanji-detail">◀</button>
@@ -182,49 +184,49 @@ function renderCharDetail(container, navigate) {
     </div>
   `;
 
-    // 戻る
-    container.querySelector('#btn-back-kanji-detail').addEventListener('click', () => {
-        playSound('pop');
-        renderCategorySelect(container, navigate);
+  // 戻る
+  container.querySelector('#btn-back-kanji-detail').addEventListener('click', () => {
+    playSound('pop');
+    renderCategorySelect(container, navigate);
+  });
+
+  // 漢字タップで読み上げ
+  container.querySelector('#kanji-char').addEventListener('click', () => {
+    playSound('sparkle');
+    speakBoth(kanji, kanji);
+  });
+
+  // 個別読み上げボタン
+  container.querySelector('#btn-speak-zh').addEventListener('click', () => {
+    playSound('sparkle');
+    speak(kanji, 'zh');
+  });
+
+  container.querySelector('#btn-speak-ja').addEventListener('click', () => {
+    playSound('sparkle');
+    speak(kanji, 'ja');
+  });
+
+  // ナビゲーション
+  const prevBtn = container.querySelector('#btn-prev');
+  const nextBtn = container.querySelector('#btn-next');
+
+  if (!isFirst) {
+    prevBtn.addEventListener('click', () => {
+      currentCharIdx--;
+      playSound('pop');
+      renderCharDetail(container, navigate);
     });
+  }
 
-    // 漢字タップで読み上げ
-    container.querySelector('#kanji-char').addEventListener('click', () => {
-        playSound('sparkle');
-        speakBoth(kanji, kanji);
+  if (!isLast) {
+    nextBtn.addEventListener('click', () => {
+      currentCharIdx++;
+      playSound('pop');
+      renderCharDetail(container, navigate);
     });
+  }
 
-    // 個別読み上げボタン
-    container.querySelector('#btn-speak-zh').addEventListener('click', () => {
-        playSound('sparkle');
-        speak(kanji, 'zh');
-    });
-
-    container.querySelector('#btn-speak-ja').addEventListener('click', () => {
-        playSound('sparkle');
-        speak(kanji, 'ja');
-    });
-
-    // ナビゲーション
-    const prevBtn = container.querySelector('#btn-prev');
-    const nextBtn = container.querySelector('#btn-next');
-
-    if (!isFirst) {
-        prevBtn.addEventListener('click', () => {
-            currentCharIdx--;
-            playSound('pop');
-            renderCharDetail(container, navigate);
-        });
-    }
-
-    if (!isLast) {
-        nextBtn.addEventListener('click', () => {
-            currentCharIdx++;
-            playSound('pop');
-            renderCharDetail(container, navigate);
-        });
-    }
-
-    // 初回表示時に読み上げ
-    setTimeout(() => speak(kanji, 'zh'), 600);
+  // 初回表示時に読み上げ
+  setTimeout(() => speak(kanji, 'zh'), 600);
 }
