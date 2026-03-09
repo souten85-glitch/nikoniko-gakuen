@@ -5,7 +5,7 @@
  * 5問1セット → スコア画面
  */
 import { t, tBoth, getLang } from '../i18n.js';
-import { playSound, speak } from '../audio.js';
+import { playSound, speak, speakWord } from '../audio.js';
 import { recordGame } from '../progress.js';
 
 const TOTAL_QUESTIONS = 5;
@@ -178,8 +178,8 @@ function handleAnswer(container, navigate, value, btnEl) {
     btnEl.classList.add('math-choice--correct');
     playSound('chime');
 
-    // 正解の数を読み上げ
-    setTimeout(() => speak(numberSpeakText(q.count), voiceLang), 300);
+    // 正解の数をMP3ファイルで読み上げ（numbers カテゴリと共用）
+    setTimeout(() => speakWord('numbers', String(q.count), numberSpeakText(q.count), voiceLang), 300);
 
     // 紙吹雪
     showConfetti(container);

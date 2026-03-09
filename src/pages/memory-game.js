@@ -4,7 +4,7 @@
  * 難易度: 4ペア(8枚) / 6ペア(12枚)
  */
 import { t, tBoth, getLang, getAge } from '../i18n.js';
-import { playSound, speak } from '../audio.js';
+import { playSound, speak, speakWord } from '../audio.js';
 import { categories, flashcardData } from '../data/flashcard-data.js';
 import { recordGame } from '../progress.js';
 
@@ -191,8 +191,11 @@ function handleCardClick(container, navigate, idx) {
   const cardEl = container.querySelectorAll('.mem-card')[idx];
   cardEl.classList.add('mem-card--flipped');
 
-  // 中国語で読み上げ
-  speak(cards[idx].zh, 'zh');
+  // MP3ファイルで中国語読み上げ（imageパスからcategoryとfileKeyを抽出）
+  const imgParts = cards[idx].image.split('/');
+  const category = imgParts[imgParts.length - 2]; // e.g. 'animals'
+  const fileKey = imgParts[imgParts.length - 1].replace('.png', ''); // e.g. 'dog'
+  speakWord(category, fileKey, cards[idx].zh, 'zh');
 
   if (flipped.length === 2) {
     lockBoard = true;

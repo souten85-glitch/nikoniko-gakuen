@@ -136,10 +136,51 @@ export function speak(text, lang = 'ja') {
 
 
 /**
- * 両言語で読み上げ（中国語 → 日本語）
- * @param {string} jaText
- * @param {string} zhText
+ * 生成済みMP3ファイルで単語を読み上げ
+ * ファイルが見つからない場合はWeb Speech APIにフォールバック
+ * 
+ * @param {string} category - フラッシュカードカテゴリ (e.g. 'animals')
+ * @param {string} fileKey  - ファイル名（拡張子なし） (e.g. 'dog')
+ * @param {string} text     - フォールバック用テキスト (e.g. '狗' or 'いぬ')
+ * @param {'ja' | 'zh'} lang - 言語
+ * @returns {Promise<void>}
  */
+export function speakWord(category, fileKey, text, lang = 'ja') {
+    if (!speechEnabled) return Promise.resolve();
+
+    const base = import.meta.env.BASE_URL || '/';
+    const audioPath = `${base}audio/${category}/${lang}/${fileKey}.mp3`;
+
+    return new Promise((resolve) => {
+        const audio = new Audio(audioPath);
+        audio.volume = 0.9;
+
+        audio.onended = resolve;
+        audio.onerror = () => {
+            // MP3が見つからない場合はSpeech APIにフォールバック
+            speak(text, lang).then(resolve);
+        };
+
+        audio.play().catch(() => {
+            // autoplay制限等でplay()が拒否された場合もフォールバック
+            speak(text, lang).then(resolve);
+        });
+    });
+}
+
+/**
+ * 生成済みMP3で両言語読み上げ（中国語 → 日本語）
+ * @param {string} category - フラッシュカードカテゴリ
+ * @param {string} fileKey  - ファイル名（拡張子なし）
+ * @param {string} jaText   - 日本語テキスト（フォールバック用）
+ * @param {string} zhText   - 中国語テキスト（フォールバック用）
+ */
+export async function speakWordBoth(category, fileKey, jaText, zhText) {
+    await speakWord(category, fileKey, zhText, 'zh');
+    await new Promise((r) => setTimeout(r, 400));
+    await speakWord(category, fileKey, jaText, 'ja');
+}
+
 export async function speakBoth(jaText, zhText) {
     await speak(zhText, 'zh');
     await new Promise((r) => setTimeout(r, 400));

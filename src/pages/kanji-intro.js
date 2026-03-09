@@ -4,7 +4,7 @@
  * タップで読み上げ + 書き順ストローク表示
  */
 import { t, tBoth, getLang } from '../i18n.js';
-import { playSound, speak, speakBoth } from '../audio.js';
+import { playSound, speak, speakBoth, speakWord, speakWordBoth } from '../audio.js';
 import { recordKanjiView } from '../progress.js';
 
 /** 漢字データ: [漢字, ピンイン, 中国語意味, 日本語読み, 画数] */
@@ -190,21 +190,23 @@ function renderCharDetail(container, navigate) {
     renderCategorySelect(container, navigate);
   });
 
-  // 漢字タップで読み上げ
+  // 漢字タップで両言語読み上げ
+  const kanjiFileKey = kanji.codePointAt(0).toString(16).padStart(4, '0');
+
   container.querySelector('#kanji-char').addEventListener('click', () => {
     playSound('sparkle');
-    speakBoth(kanji, kanji);
+    speakWordBoth('kanji', kanjiFileKey, kanji, kanji);
   });
 
   // 個別読み上げボタン
   container.querySelector('#btn-speak-zh').addEventListener('click', () => {
     playSound('sparkle');
-    speak(kanji, 'zh');
+    speakWord('kanji', kanjiFileKey, kanji, 'zh');
   });
 
   container.querySelector('#btn-speak-ja').addEventListener('click', () => {
     playSound('sparkle');
-    speak(kanji, 'ja');
+    speakWord('kanji', kanjiFileKey, kanji, 'ja');
   });
 
   // ナビゲーション
@@ -227,6 +229,6 @@ function renderCharDetail(container, navigate) {
     });
   }
 
-  // 初回表示時に読み上げ
-  setTimeout(() => speak(kanji, 'zh'), 600);
+  // 初回表示時に中国語で読み上げ
+  setTimeout(() => speakWord('kanji', kanjiFileKey, kanji, 'zh'), 600);
 }

@@ -4,7 +4,7 @@
  * タップで中国語音声読み上げ + バウンスアニメーション
  */
 import { t } from '../i18n.js';
-import { playSound, speak } from '../audio.js';
+import { playSound, speak, speakWord } from '../audio.js';
 
 /** 声母（shēngmǔ）— 23個: [表示文字, 読み上げ用漢字] */
 const SHENGMU_ROWS = [
@@ -112,13 +112,17 @@ function renderGrid(container, navigate) {
     });
   });
 
-  // セルタップ — 中国語音声読み上げ（data-speak属性に漢字が入っている）
+  // セルタップ — MP3ファイルで中国語音声読み上げ
   container.querySelectorAll('.pinyin-cell[data-speak]').forEach(cell => {
     cell.addEventListener('click', async () => {
       const speakCh = cell.dataset.speak;
+      const display = cell.querySelector('.hira-cell__char').textContent.trim();
+      const subDir = currentTab === 'shengmu' ? 'shengmu' : 'yunmu';
+      // ü -> v でファイル名を対応
+      const fileKey = display.replace('ü', 'v');
       cell.classList.add('hira-cell--bounce');
       playSound('sparkle');
-      await speak(speakCh, 'zh');
+      await speakWord(`pinyin/${subDir}`, fileKey, speakCh, 'zh');
       setTimeout(() => cell.classList.remove('hira-cell--bounce'), 500);
     });
   });

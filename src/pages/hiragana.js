@@ -4,7 +4,7 @@
  * 清音 / 濁音・半濁音 タブ切替
  */
 import { t, getLang } from '../i18n.js';
-import { playSound, speak } from '../audio.js';
+import { playSound, speak, speakWord } from '../audio.js';
 
 /** 清音データ（行ごとに配列） */
 const SEION_ROWS = [
@@ -18,7 +18,7 @@ const SEION_ROWS = [
   { label: 'や行', color: '#C8A3F5', chars: ['や', null, 'ゆ', null, 'よ'] },
   { label: 'ら行', color: '#F5A3D8', chars: ['ら', 'り', 'る', 'れ', 'ろ'] },
   { label: 'わ行', color: '#F5A3A3', chars: ['わ', null, null, null, 'を'] },
-  { label: 'ん',   color: '#D8C8B8', chars: ['ん', null, null, null, null] },
+  { label: 'ん', color: '#D8C8B8', chars: ['ん', null, null, null, null] },
 ];
 
 /** 濁音・半濁音データ */
@@ -32,21 +32,21 @@ const DAKUON_ROWS = [
 
 /** ローマ字マッピング（中国語モード用） */
 const ROMAJI = {
-  'あ':'a','い':'i','う':'u','え':'e','お':'o',
-  'か':'ka','き':'ki','く':'ku','け':'ke','こ':'ko',
-  'さ':'sa','し':'shi','す':'su','せ':'se','そ':'so',
-  'た':'ta','ち':'chi','つ':'tsu','て':'te','と':'to',
-  'な':'na','に':'ni','ぬ':'nu','ね':'ne','の':'no',
-  'は':'ha','ひ':'hi','ふ':'fu','へ':'he','ほ':'ho',
-  'ま':'ma','み':'mi','む':'mu','め':'me','も':'mo',
-  'や':'ya','ゆ':'yu','よ':'yo',
-  'ら':'ra','り':'ri','る':'ru','れ':'re','ろ':'ro',
-  'わ':'wa','を':'wo','ん':'n',
-  'が':'ga','ぎ':'gi','ぐ':'gu','げ':'ge','ご':'go',
-  'ざ':'za','じ':'ji','ず':'zu','ぜ':'ze','ぞ':'zo',
-  'だ':'da','ぢ':'di','づ':'du','で':'de','ど':'do',
-  'ば':'ba','び':'bi','ぶ':'bu','べ':'be','ぼ':'bo',
-  'ぱ':'pa','ぴ':'pi','ぷ':'pu','ぺ':'pe','ぽ':'po',
+  'あ': 'a', 'い': 'i', 'う': 'u', 'え': 'e', 'お': 'o',
+  'か': 'ka', 'き': 'ki', 'く': 'ku', 'け': 'ke', 'こ': 'ko',
+  'さ': 'sa', 'し': 'shi', 'す': 'su', 'せ': 'se', 'そ': 'so',
+  'た': 'ta', 'ち': 'chi', 'つ': 'tsu', 'て': 'te', 'と': 'to',
+  'な': 'na', 'に': 'ni', 'ぬ': 'nu', 'ね': 'ne', 'の': 'no',
+  'は': 'ha', 'ひ': 'hi', 'ふ': 'fu', 'へ': 'he', 'ほ': 'ho',
+  'ま': 'ma', 'み': 'mi', 'む': 'mu', 'め': 'me', 'も': 'mo',
+  'や': 'ya', 'ゆ': 'yu', 'よ': 'yo',
+  'ら': 'ra', 'り': 'ri', 'る': 'ru', 'れ': 're', 'ろ': 'ro',
+  'わ': 'wa', 'を': 'wo', 'ん': 'n',
+  'が': 'ga', 'ぎ': 'gi', 'ぐ': 'gu', 'げ': 'ge', 'ご': 'go',
+  'ざ': 'za', 'じ': 'ji', 'ず': 'zu', 'ぜ': 'ze', 'ぞ': 'zo',
+  'だ': 'da', 'ぢ': 'di', 'づ': 'du', 'で': 'de', 'ど': 'do',
+  'ば': 'ba', 'び': 'bi', 'ぶ': 'bu', 'べ': 'be', 'ぼ': 'bo',
+  'ぱ': 'pa', 'ぴ': 'pi', 'ぷ': 'pu', 'ぺ': 'pe', 'ぽ': 'po',
 };
 
 /** 現在のタブ */
@@ -87,15 +87,15 @@ function renderGrid(container, navigate) {
           ${rows.map((row, rowIdx) => `
             <div class="hira-row" style="animation: slideUp 0.4s ease ${rowIdx * 0.05}s both;">
               ${row.chars.map(ch => {
-                if (!ch) return '<div class="hira-cell hira-cell--empty"></div>';
-                return `
+    if (!ch) return '<div class="hira-cell hira-cell--empty"></div>';
+    return `
                   <button class="hira-cell" data-char="${ch}"
                           style="background: ${row.color};">
                     <span class="hira-cell__char">${ch}</span>
                     ${showRomaji ? `<span class="hira-cell__romaji">${ROMAJI[ch] || ''}</span>` : ''}
                   </button>
                 `;
-              }).join('')}
+  }).join('')}
             </div>
           `).join('')}
         </div>
@@ -118,14 +118,15 @@ function renderGrid(container, navigate) {
     });
   });
 
-  // セルタップ — 読み上げ
+  // セルタップ — MP3ファイルで読み上げ
   container.querySelectorAll('.hira-cell[data-char]').forEach(cell => {
     cell.addEventListener('click', async () => {
       const ch = cell.dataset.char;
-      // バウンスアニメーション
+      // Unicode hexファイル名を生成 (e.g. 'あ' -> '3042', 'きゃ' -> '304d_3083')
+      const fileKey = [...ch].map(c => c.codePointAt(0).toString(16).padStart(4, '0')).join('_');
       cell.classList.add('hira-cell--bounce');
       playSound('sparkle');
-      await speak(ch, 'ja');
+      await speakWord('hiragana', fileKey, ch, 'ja');
       setTimeout(() => cell.classList.remove('hira-cell--bounce'), 500);
     });
   });

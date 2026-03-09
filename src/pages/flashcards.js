@@ -4,7 +4,7 @@
  * 年齢グループに応じてカテゴリをフィルタリング
  */
 import { t, tBoth, getLang, getAge } from '../i18n.js';
-import { playSound, speak, speakBoth } from '../audio.js';
+import { playSound, speak, speakBoth, speakWord, speakWordBoth } from '../audio.js';
 import { categories, flashcardData } from '../data/flashcard-data.js';
 
 /** public/ 配下の静的アセットURLを解決（GitHub Pages対応） */
@@ -131,10 +131,13 @@ function renderCardView(container, navigate, categoryId) {
       flashcardEl.classList.add('animate-bounce');
       playSound('sparkle');
 
+      // imageパスからファイルキーを抽出 (e.g. '/images/animals/dog.png' -> 'dog')
+      const fileKey = card.image.split('/').pop().replace('.png', '');
+
       if (lang === 'both') {
-        await speakBoth(card.ja, card.zh);
+        await speakWordBoth(categoryId, fileKey, card.ja, card.zh);
       } else {
-        await speak(lang === 'zh' ? card.zh : card.ja, lang === 'zh' ? 'zh' : 'ja');
+        await speakWord(categoryId, fileKey, lang === 'zh' ? card.zh : card.ja, lang === 'zh' ? 'zh' : 'ja');
       }
 
       setTimeout(() => flashcardEl.classList.remove('animate-bounce'), 600);
@@ -173,10 +176,11 @@ function renderCardView(container, navigate, categoryId) {
 
     // 初回自動読み上げ
     setTimeout(async () => {
+      const fileKey = card.image.split('/').pop().replace('.png', '');
       if (lang === 'both') {
-        await speakBoth(card.ja, card.zh);
+        await speakWordBoth(categoryId, fileKey, card.ja, card.zh);
       } else {
-        await speak(lang === 'zh' ? card.zh : card.ja, lang === 'zh' ? 'zh' : 'ja');
+        await speakWord(categoryId, fileKey, lang === 'zh' ? card.zh : card.ja, lang === 'zh' ? 'zh' : 'ja');
       }
     }, 500);
   }
