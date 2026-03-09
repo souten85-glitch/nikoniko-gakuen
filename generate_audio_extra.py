@@ -14,7 +14,10 @@ import time
 BASE_DIR = os.path.join(os.path.dirname(__file__), "public", "audio")
 
 # Google Cloud TTS API
-API_KEY = "***REMOVED***"
+# APIキーは環境変数 GCLOUD_TTS_API_KEY から読み取り
+API_KEY = os.environ.get("GCLOUD_TTS_API_KEY", "")
+if not API_KEY:
+    raise RuntimeError("環境変数 GCLOUD_TTS_API_KEY を設定してください")
 TTS_URL = f"https://texttospeech.googleapis.com/v1/text:synthesize?key={API_KEY}"
 
 VOICE_ZH = {"languageCode": "cmn-CN", "name": "cmn-CN-Wavenet-A"}
