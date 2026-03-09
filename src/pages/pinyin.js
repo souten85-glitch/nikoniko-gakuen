@@ -2,6 +2,7 @@
  * pinyin.js — ピンイン学習ページ
  * 中国語の声母（shēngmǔ）と韻母（yùnmǔ）をインタラクティブに学習
  * タップで中国語音声読み上げ + バウンスアニメーション
+ * 韻母タップ時は四声（第1声→第2声→第3声→第4声）を順番に再生
  */
 import { t } from '../i18n.js';
 import { playSound, speak, speakWord } from '../audio.js';
@@ -17,19 +18,19 @@ const SHENGMU_ROWS = [
   { color: '#C8A3F5', chars: [['y', '衣'], ['w', '乌'], null, null] },
 ];
 
-/** 韻母（yùnmǔ）— 24個: [表示文字, 読み上げ用漢字] */
+/** 韻母（yùnmǔ）— 24個: [表示文字, 読み上げ用漢字（フォールバック用）] */
 const YUNMU_ROWS = [
-  { color: '#FFB3B3', chars: [['a', '啊'], ['o', '喔'], ['e', '鹅'], null] },
+  { color: '#FFB3B3', chars: [['a', '啊'], ['o', '噢'], ['e', '鹅'], null] },
   { color: '#FFD1A3', chars: [['i', '衣'], ['u', '乌'], ['ü', '鱼'], null] },
-  { color: '#FFE8A3', chars: [['ai', '爱'], ['ei', '杯'], ['ui', '回'], null] },
-  { color: '#D4F5A3', chars: [['ao', '猫'], ['ou', '狗'], ['iu', '牛'], null] },
+  { color: '#FFE8A3', chars: [['ai', '哀'], ['ei', '杯'], ['ui', '回'], null] },
+  { color: '#D4F5A3', chars: [['ao', '猫'], ['ou', '欧'], ['iu', '牛'], null] },
   { color: '#A3F5C8', chars: [['ie', '耶'], ['üe', '月'], ['er', '耳'], null] },
   { color: '#A3E8F5', chars: [['an', '安'], ['en', '恩'], ['in', '因'], null] },
   { color: '#A3C8F5', chars: [['un', '温'], ['ün', '晕'], null, null] },
   { color: '#C8A3F5', chars: [['ang', '昂'], ['eng', '风'], ['ing', '英'], ['ong', '翁']] },
 ];
 
-/** 四声の例（代表的な文字） */
+/** 四声の表示テキスト（各韻母に対応） */
 const TONE_EXAMPLES = {
   'a': 'ā á ǎ à', 'o': 'ō ó ǒ ò', 'e': 'ē é ě è',
   'i': 'ī í ǐ ì', 'u': 'ū ú ǔ ù', 'ü': 'ǖ ǘ ǚ ǜ',
@@ -50,6 +51,22 @@ let currentTab = 'shengmu';
  */
 export function renderPinyin(container, navigate) {
   renderGrid(container, navigate);
+}
+
+/**
+ * 韻母の四声を順番に再生する（第1声→第2声→第3声→第4声）
+ * @param {string} fileKey - 韻母のファイルキー（例: 'a', 'o', 'v'）
+ * @param {string} speakText - フォールバック用テキスト
+ */
+async function playYunmuTones(fileKey, speakText) {
+  for (let tone = 1; tone <= 4; tone++) {
+    const toneFileKey = `${fileKey}_tone${tone}`;
+    await speakWord('pinyin/yunmu', toneFileKey, speakText, 'zh');
+    // 各声調間に短い間隔を入れる
+    if (tone < 4) {
+      await new Promise(r => setTimeout(r, 300));
+    }
+  }
 }
 
 function renderGrid(container, navigate) {
@@ -83,7 +100,7 @@ function renderGrid(container, navigate) {
     const [display, speakCh] = ch;
     const toneHint = TONE_EXAMPLES[display] || '';
     return `
-                  <button class="hira-cell pinyin-cell" data-speak="${speakCh}"
+                  <button class="hira-cell pinyin-cell" data-speak="${speakCh}" data-display="${display}"
                           style="background: ${row.color};">
                     <span class="hira-cell__char" style="font-family: sans-serif; font-weight: 700;">${display}</span>
                     ${toneHint ? `<span class="pinyin-cell__tones">${toneHint}</span>` : ''}
@@ -112,18 +129,30 @@ function renderGrid(container, navigate) {
     });
   });
 
-  // セルタップ — MP3ファイルで中国語音声読み上げ
+  // セルタップ — 音声読み上げ
   container.querySelectorAll('.pinyin-cell[data-speak]').forEach(cell => {
     cell.addEventListener('click', async () => {
+      // 再生中のセルは無視（連打防止）
+      if (cell.classList.contains('hira-cell--bounce')) return;
+
       const speakCh = cell.dataset.speak;
-      const display = cell.querySelector('.hira-cell__char').textContent.trim();
-      const subDir = currentTab === 'shengmu' ? 'shengmu' : 'yunmu';
+      const display = cell.dataset.display;
+      const isYunmu = currentTab === 'yunmu';
       // ü -> v でファイル名を対応
       const fileKey = display.replace('ü', 'v');
+
       cell.classList.add('hira-cell--bounce');
       playSound('sparkle');
-      await speakWord(`pinyin/${subDir}`, fileKey, speakCh, 'zh');
-      setTimeout(() => cell.classList.remove('hira-cell--bounce'), 500);
+
+      if (isYunmu) {
+        // 韻母: 四声を順番に再生（第1声→第2声→第3声→第4声）
+        await playYunmuTones(fileKey, speakCh);
+      } else {
+        // 声母: 単一音声を再生
+        await speakWord(`pinyin/shengmu`, fileKey, speakCh, 'zh');
+      }
+
+      cell.classList.remove('hira-cell--bounce');
     });
   });
 }

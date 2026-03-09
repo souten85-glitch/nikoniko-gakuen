@@ -149,7 +149,11 @@ export function speakWord(category, fileKey, text, lang = 'ja') {
     if (!speechEnabled) return Promise.resolve();
 
     const base = import.meta.env.BASE_URL || '/';
-    const audioPath = `${base}audio/${category}/${lang}/${fileKey}.mp3`;
+    // ピンインカテゴリは lang サブディレクトリなし（audio/pinyin/yunmu/a.mp3 の形式）
+    const isPinyin = category.startsWith('pinyin/');
+    const audioPath = isPinyin
+        ? `${base}audio/${category}/${fileKey}.mp3`
+        : `${base}audio/${category}/${lang}/${fileKey}.mp3`;
 
     return new Promise((resolve) => {
         const audio = new Audio(audioPath);
