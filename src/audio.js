@@ -74,12 +74,21 @@ function findBestVoice(langCode) {
 
 /**
  * テキストを音声で読み上げ
+ * Web Speech API 非対応の環境（WeChat内ブラウザ等）では
+ * サイレントに失敗し、視覚的フィードバックでカバー
  * @param {string} text - 読み上げるテキスト
  * @param {'ja' | 'zh'} lang - 言語
  * @returns {Promise<void>}
  */
 export function speak(text, lang = 'ja') {
-    if (!speechEnabled || !window.speechSynthesis) return Promise.resolve();
+    if (!speechEnabled) return Promise.resolve();
+
+    // Web Speech API 非対応のフォールバック
+    if (!window.speechSynthesis || !window.SpeechSynthesisUtterance) {
+        // 音声なしの視覚的フィードバック（吹き出し表示）
+        showSpeechBubble(text);
+        return Promise.resolve();
+    }
 
     return new Promise((resolve) => {
         // 既存の読み上げを停止
@@ -100,27 +109,66 @@ export function speak(text, lang = 'ja') {
         }
 
         utterance.onend = resolve;
-        utterance.onerror = () => resolve(); // エラー時もPromise解決
+        utterance.onerror = () => {
+            // 音声合成エラー時もフォールバック
+            showSpeechBubble(text);
+            resolve();
+        };
 
         // iOS Safariではcancel後に長めの遅延が必要
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
         const delay = isIOS ? 200 : 50;
 
         setTimeout(() => {
-            window.speechSynthesis.speak(utterance);
-            // iOS Safari: 長い発話が途中で止まるバグ対策
-            if (isIOS) {
-                const keepAlive = setInterval(() => {
-                    if (!window.speechSynthesis.speaking) {
-                        clearInterval(keepAlive);
-                    } else {
-                        window.speechSynthesis.pause();
-                        window.speechSynthesis.resume();
-                    }
-                }, 5000);
+            try {
+                window.speechSynthesis.speak(utterance);
+                // iOS Safari: 長い発話が途中で止まるバグ対策
+                if (isIOS) {
+                    const keepAlive = setInterval(() => {
+                        if (!window.speechSynthesis.speaking) {
+                            clearInterval(keepAlive);
+                        } else {
+                            window.speechSynthesis.pause();
+                            window.speechSynthesis.resume();
+                        }
+                    }, 5000);
+                }
+            } catch (e) {
+                showSpeechBubble(text);
+                resolve();
             }
         }, delay);
     });
+}
+
+/**
+ * Web Speech API 非対応時の視覚フィードバック
+ * 画面上部に一時的な吹き出しを表示
+ */
+function showSpeechBubble(text) {
+    const existing = document.querySelector('.speech-bubble-fallback');
+    if (existing) existing.remove();
+
+    const bubble = document.createElement('div');
+    bubble.className = 'speech-bubble-fallback';
+    bubble.textContent = `🔊 ${text}`;
+    bubble.style.cssText = `
+        position: fixed;
+        top: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.75);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-size: 16px;
+        font-weight: 700;
+        z-index: 9999;
+        animation: fadeIn 0.3s ease, fadeOut 0.3s ease 1.5s forwards;
+        pointer-events: none;
+    `;
+    document.body.appendChild(bubble);
+    setTimeout(() => bubble.remove(), 2000);
 }
 
 /**

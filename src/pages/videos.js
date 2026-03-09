@@ -1,24 +1,30 @@
 /**
  * videos.js — 動画画面
  * YouTube知育動画をカテゴリ別にリスト表示し、タップでiframe再生
- * 
- * v3: プレイヤーをカード直下にインライン挿入する方式に変更
+ * 中国国内アクセス時はBilibili版に自動切替
  */
 import { t, getLang } from '../i18n.js';
 import { playSound } from '../audio.js';
-import { videoCategories } from '../data/videos.js';
+import { videoCategories, bilibiliVideoCategories } from '../data/videos.js';
+import { isInChina } from '../region.js';
 
 /**
  * 動画画面をレンダリング
  */
 export function renderVideos(container, navigate) {
   const lang = getLang();
-  let displayCategories = videoCategories;
+  const china = isInChina();
+  const source = china ? bilibiliVideoCategories : videoCategories;
+
+  let displayCategories = source;
   if (lang === 'ja') {
-    displayCategories = videoCategories.filter((c) => c.id === 'ja');
+    displayCategories = source.filter((c) => c.id === 'ja');
   } else if (lang === 'zh') {
-    displayCategories = videoCategories.filter((c) => c.id === 'zh');
+    displayCategories = source.filter((c) => c.id === 'zh');
   }
+
+  // カード用のID取得キー
+  const idKey = china ? 'bvid' : 'id';
 
   container.innerHTML = `
     <div class="page" id="videos-page">
@@ -28,6 +34,7 @@ export function renderVideos(container, navigate) {
         <div style="width:44px"></div>
       </div>
       <div class="page-content page-content--scrollable" id="videos-scroll">
+        ${china ? '<div style="text-align:center; font-size: var(--font-size-xs); color: var(--color-text-light); margin-bottom: var(--space-sm);">📺 B站版</div>' : ''}
         ${displayCategories
       .map(
         (cat) => `
@@ -39,7 +46,7 @@ export function renderVideos(container, navigate) {
               ${cat.videos
             .map(
               (video, i) => `
-                <div class="media-item" data-vid="${video.id}">
+                <div class="media-item" data-vid="${video[idKey]}">
                   <div class="media-card" 
                        style="animation: slideUp 0.3s ease ${i * 0.06}s both; cursor:pointer;">
                     <span class="media-card__icon">${video.icon}</span>
@@ -72,7 +79,6 @@ export function renderVideos(container, navigate) {
 
   let currentVideoId = null;
 
-  // 各メディアカードに直接 onclick を設定
   const mediaItems = container.querySelectorAll('.media-item');
   mediaItems.forEach((item) => {
     const card = item.querySelector('.media-card');
@@ -83,7 +89,6 @@ export function renderVideos(container, navigate) {
       playSound('pop');
 
       if (currentVideoId === videoId) {
-        // 同じカード → プレイヤーを閉じる
         player.style.display = 'none';
         player.innerHTML = '';
         card.style.outline = '';
@@ -91,30 +96,44 @@ export function renderVideos(container, navigate) {
         return;
       }
 
-      // 他のプレイヤーを閉じる
       mediaItems.forEach((other) => {
         other.querySelector('.inline-player').style.display = 'none';
         other.querySelector('.inline-player').innerHTML = '';
         other.querySelector('.media-card').style.outline = '';
       });
 
-      // プレイヤーを挿入
       currentVideoId = videoId;
       card.style.outline = '3px solid var(--color-pink)';
       card.style.outlineOffset = '2px';
       player.style.display = 'block';
-      player.innerHTML = `
-        <div class="video-player-wrap" style="display:block; margin-top: var(--space-sm);">
-          <iframe 
-            src="https://www.youtube.com/embed/${videoId}?autoplay=1&playsinline=1&rel=0" 
-            allow="autoplay; encrypted-media; picture-in-picture" 
-            allowfullscreen
-            title="Video player">
-          </iframe>
-        </div>
-      `;
 
-      // プレイヤーまでスクロール
+      if (china) {
+        // Bilibili埋め込みプレイヤー
+        player.innerHTML = `
+          <div class="video-player-wrap" style="display:block; margin-top: var(--space-sm);">
+            <iframe 
+              src="https://player.bilibili.com/player.html?bvid=${videoId}&autoplay=1&high_quality=1"
+              allow="autoplay; fullscreen"
+              allowfullscreen
+              sandbox="allow-scripts allow-same-origin allow-popups"
+              title="Bilibili player">
+            </iframe>
+          </div>
+        `;
+      } else {
+        // YouTube埋め込みプレイヤー
+        player.innerHTML = `
+          <div class="video-player-wrap" style="display:block; margin-top: var(--space-sm);">
+            <iframe 
+              src="https://www.youtube.com/embed/${videoId}?autoplay=1&playsinline=1&rel=0" 
+              allow="autoplay; encrypted-media; picture-in-picture" 
+              allowfullscreen
+              title="Video player">
+            </iframe>
+          </div>
+        `;
+      }
+
       setTimeout(() => {
         player.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }, 100);

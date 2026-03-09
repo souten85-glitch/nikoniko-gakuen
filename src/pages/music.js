@@ -6,6 +6,8 @@
  */
 import { t, getLang } from '../i18n.js';
 import { playSound } from '../audio.js';
+import { bilibiliMusicData } from '../data/videos.js';
+import { isInChina } from '../region.js';
 
 const musicData = {
   ja: [
@@ -35,17 +37,34 @@ const musicData = {
  */
 export function renderMusic(container, navigate) {
   const lang = getLang();
+  const china = isInChina();
   let displayLists = [];
 
-  if (lang === 'ja') {
-    displayLists = [{ label: '🇯🇵 にほんのうた', songs: musicData.ja }];
-  } else if (lang === 'zh') {
-    displayLists = [{ label: '🇨🇳 中文儿歌', songs: musicData.zh }];
+  if (china) {
+    // 中国国内: Bilibiliデータを使用
+    const bData = bilibiliMusicData;
+    if (lang === 'ja') {
+      displayLists = [{ label: '🇯🇵 にほんのうた（B站）', songs: bData.ja, isBilibili: true }];
+    } else if (lang === 'zh') {
+      displayLists = [{ label: '🇨🇳 中文儿歌（B站）', songs: bData.zh, isBilibili: true }];
+    } else {
+      displayLists = [
+        { label: '🇨🇳 中文儿歌（B站）', songs: bData.zh, isBilibili: true },
+        { label: '🇯🇵 にほんのうた（B站）', songs: bData.ja, isBilibili: true },
+      ];
+    }
   } else {
-    displayLists = [
-      { label: '🇨🇳 中文儿歌', songs: musicData.zh },
-      { label: '🇯🇵 にほんのうた', songs: musicData.ja },
-    ];
+    // 海外: YouTubeデータを使用
+    if (lang === 'ja') {
+      displayLists = [{ label: '🇯🇵 にほんのうた', songs: musicData.ja, isBilibili: false }];
+    } else if (lang === 'zh') {
+      displayLists = [{ label: '🇨🇳 中文儿歌', songs: musicData.zh, isBilibili: false }];
+    } else {
+      displayLists = [
+        { label: '🇨🇳 中文儿歌', songs: musicData.zh, isBilibili: false },
+        { label: '🇯🇵 にほんのうた', songs: musicData.ja, isBilibili: false },
+      ];
+    }
   }
 
   container.innerHTML = `
@@ -67,7 +86,7 @@ export function renderMusic(container, navigate) {
               ${list.songs
             .map(
               (song, i) => `
-                <div class="media-item" data-sid="${song.id}">
+                <div class="media-item" data-sid="${song.bvid || song.id}" data-bilibili="${list.isBilibili}">
                   <div class="media-card"
                        style="animation: slideUp 0.3s ease ${i * 0.06}s both; cursor:pointer;">
                     <span class="media-card__icon">${song.icon}</span>
@@ -130,16 +149,33 @@ export function renderMusic(container, navigate) {
       card.style.outline = '3px solid var(--color-green)';
       card.style.outlineOffset = '2px';
       player.style.display = 'block';
-      player.innerHTML = `
-        <div class="video-player-wrap" style="display:block; margin-top: var(--space-sm);">
-          <iframe 
-            src="https://www.youtube.com/embed/${songId}?autoplay=1&playsinline=1&rel=0&loop=1" 
-            allow="autoplay; encrypted-media; picture-in-picture"
-            allowfullscreen
-            title="Music player">
-          </iframe>
-        </div>
-      `;
+
+      const isBilibili = item.dataset.bilibili === 'true';
+
+      if (isBilibili) {
+        player.innerHTML = `
+          <div class="video-player-wrap" style="display:block; margin-top: var(--space-sm);">
+            <iframe 
+              src="https://player.bilibili.com/player.html?bvid=${songId}&autoplay=1&high_quality=1"
+              allow="autoplay; fullscreen"
+              allowfullscreen
+              sandbox="allow-scripts allow-same-origin allow-popups"
+              title="Bilibili player">
+            </iframe>
+          </div>
+        `;
+      } else {
+        player.innerHTML = `
+          <div class="video-player-wrap" style="display:block; margin-top: var(--space-sm);">
+            <iframe 
+              src="https://www.youtube.com/embed/${songId}?autoplay=1&playsinline=1&rel=0&loop=1" 
+              allow="autoplay; encrypted-media; picture-in-picture"
+              allowfullscreen
+              title="Music player">
+            </iframe>
+          </div>
+        `;
+      }
 
       setTimeout(() => {
         player.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
